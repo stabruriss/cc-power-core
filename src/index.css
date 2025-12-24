@@ -1,0 +1,141 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+    --color-te-grey: #e2e2e5;
+    --color-te-dark-grey: #8b8b90;
+    --color-te-black: #1c1c1e;
+    --color-te-orange: #ff4400;
+    --color-te-orange-dark: #cc3700;
+    --color-te-blue: #2f5af5;
+    --color-te-offwhite: #f2f2f7;
+    --color-retro-bg: #2c2c2e;
+    --color-retro-panel: #a1a1aa;
+
+    --font-mono: "JetBrains Mono", monospace;
+    --font-sans: "Inter", sans-serif;
+
+    --shadow-hard: 4px 4px 0px 0px rgba(0, 0, 0, 0.2);
+    --shadow-hard-sm: 2px 2px 0px 0px rgba(0, 0, 0, 0.2);
+    --shadow-inset-screen: inset 0 0 20px rgba(0, 0, 0, 0.6);
+    --shadow-glow-green: 0 0 10px rgba(74, 222, 128, 0.5);
+    --shadow-glow-red: 0 0 10px rgba(248, 113, 113, 0.5);
+    --shadow-glow-yellow: 0 0 10px rgba(250, 204, 21, 0.5);
+}
+
+body {
+    background-color: var(--color-retro-bg);
+}
+
+/* Custom scrollbar for the "screen" */
+.screen-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.screen-scroll::-webkit-scrollbar-track {
+    background: #111;
+}
+
+.screen-scroll::-webkit-scrollbar-thumb {
+    background: #ff4400;
+    border-radius: 2px;
+}
+
+/* Industrial Visuals */
+.bg-retro-panel {
+    background-color: #a1a1aa;
+    /* Revert to Zinc-400 (Medium Gray) */
+    position: relative;
+    /* z-index removed to let Tailwind control stacking context */
+    transition: background-color 0.5s ease;
+    background-image: none;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.3);
+}
+
+/* Layer 1: Dark Circuit Traces (Always Visible) */
+.bg-retro-panel::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url('/circuit.svg');
+    background-size: 400px 400px;
+    background-repeat: repeat;
+    opacity: 0.15;
+    filter: grayscale(1) invert(0);
+    /* Black lines */
+    z-index: -2;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+}
+
+/* Layer 2: Glowing Circuit Traces (Active Only) */
+.bg-retro-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: #15803d;
+    /* Green-700 (Much Deeper) */
+    mask-image: url('/circuit.svg');
+    -webkit-mask-image: url('/circuit.svg');
+    mask-size: 400px 400px;
+    -webkit-mask-size: 400px 400px;
+    mask-repeat: repeat;
+    -webkit-mask-repeat: repeat;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 1s ease;
+    pointer-events: none;
+    mix-blend-mode: color-dodge;
+    /* Different blend for glow feel */
+}
+
+.tech-glow-active::after {
+    opacity: 1;
+    animation: circuit-pulse-green 4s infinite ease-in-out;
+    filter: drop-shadow(0 0 1px rgba(21, 128, 61, 0.5));
+}
+
+@keyframes circuit-pulse-green {
+
+    0%,
+    100% {
+        opacity: 0.2;
+        filter: drop-shadow(0 0 1px rgba(21, 128, 61, 0.2));
+    }
+
+    50% {
+        opacity: 0.6;
+        /* Reduced max opacity */
+        filter: drop-shadow(0 0 3px rgba(21, 128, 61, 0.6));
+    }
+}
+
+.bg-heavy-metal {
+    background: linear-gradient(135deg, #2c2c2e 0%, #1c1c1e 100%);
+    box-shadow:
+        /* Bevel Light Top/Left */
+        inset 1px 1px 0px rgba(255, 255, 255, 0.1),
+        /* Bevel Dark Bottom/Right */
+        inset -1px -1px 0px rgba(0, 0, 0, 0.5),
+        /* Deep Shadow for Thickness */
+        0px 10px 20px -5px rgba(0, 0, 0, 0.8),
+        /* Outline */
+        0 0 0 1px #000;
+}
+
+.shadow-heavy-slab {
+    box-shadow:
+        inset 2px 2px 0px rgba(255, 255, 255, 0.05),
+        inset -2px -2px 0px rgba(0, 0, 0, 0.8),
+        0 20px 30px -10px rgba(0, 0, 0, 0.9),
+        0 0 0 1px #111;
+}
+
+.pattern-grille {
+    background-image: repeating-linear-gradient(90deg,
+            transparent,
+            transparent 2px,
+            #000 2px,
+            #000 4px);
+    opacity: 0.3;
+}
