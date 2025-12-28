@@ -20,6 +20,9 @@ release
 testkey.md
 tests/
 
+# Internal docs (not for public repo)
+RELEASE_GUIDELINES.md
+
 # Local env files
 *.local
 .env
