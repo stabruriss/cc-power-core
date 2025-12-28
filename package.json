@@ -1,7 +1,14 @@
 {
   "name": "cc-power-core",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "1.0.0",
+  "description": "A premium command center for routing Claude Code through OpenRouter",
+  "author": "wunan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/cc-power-core"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

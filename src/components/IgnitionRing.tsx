@@ -6,9 +6,9 @@ interface IgnitionRingProps {
 
 export const IgnitionRing: React.FC<IgnitionRingProps> = ({ state }) => {
     // Configuration
-    const radius = 38; // Radius for text path
-    const cx = 50;
-    const cy = 50;
+    // const radius = 38; // Radius for text path
+    // const cx = 50;
+    // const cy = 50;
 
     // Helper to determine color based on state
     const getColor = (targetState: 'NO_KEY' | 'OFF' | 'ON') => {
@@ -22,7 +22,7 @@ export const IgnitionRing: React.FC<IgnitionRingProps> = ({ state }) => {
         return '#52525b'; // zinc-600 (inactive)
     };
 
-    const getOpacity = (targetState: 'NO_KEY' | 'OFF' | 'ON') => {
+    const getOpacity = (_targetState: 'NO_KEY' | 'OFF' | 'ON') => {
         // return state === targetState ? 1 : 0.6;
         return 1;
     };

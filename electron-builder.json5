@@ -15,6 +15,7 @@
     "target": [
       "dmg"
     ],
+    "icon": "public/app-icons/AppIcon.icns",
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}"
   },
   "win": {
@@ -26,6 +27,7 @@
         ]
       }
     ],
+    "icon": "public/app-icons/icon-256.png",
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
   },
   "nsis": {
@@ -38,6 +40,7 @@
     "target": [
       "AppImage"
     ],
+    "icon": "public/app-icons",
     "artifactName": "${productName}-Linux-${version}.${ext}"
   }
 }

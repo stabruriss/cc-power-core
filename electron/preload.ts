@@ -24,5 +24,8 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 contextBridge.exposeInMainWorld('electronAPI', {
   getSettings: () => ipcRenderer.invoke('get-settings'),
   saveSettings: (settings: any) => ipcRenderer.invoke('save-settings', settings),
+  getShellStatus: () => ipcRenderer.invoke('get-shell-status'),
+  getShellConfigValues: () => ipcRenderer.invoke('get-shell-config-values'),
   openConfigFolder: () => ipcRenderer.invoke('open-config-folder'),
+  openPath: (path: string) => ipcRenderer.invoke('open-path', path),
 })

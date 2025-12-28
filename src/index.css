@@ -41,6 +41,20 @@ body {
     border-radius: 2px;
 }
 
+@tailwind components;
+@tailwind utilities;
+
+/* App Drag Region for Frameless Window */
+.app-drag-region {
+    -webkit-app-region: drag;
+    user-select: none;
+}
+
+/* Ensure interactable items in header are not draggable */
+.app-no-drag {
+    -webkit-app-region: no-drag;
+}
+
 /* Industrial Visuals */
 .bg-retro-panel {
     background-color: #a1a1aa;
@@ -138,4 +152,46 @@ body {
             #000 2px,
             #000 4px);
     opacity: 0.3;
+}
+
+/* Shell IO Neon Flash - 3 blinks then fade out */
+@keyframes neon-flash-3 {
+    0% {
+        background-color: rgba(255, 136, 0, 0.4);
+        box-shadow: 0 0 15px rgba(255, 136, 0, 0.6);
+    }
+
+    10% {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    20% {
+        background-color: rgba(255, 136, 0, 0.35);
+        box-shadow: 0 0 12px rgba(255, 136, 0, 0.5);
+    }
+
+    30% {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    40% {
+        background-color: rgba(255, 136, 0, 0.3);
+        box-shadow: 0 0 10px rgba(255, 136, 0, 0.4);
+    }
+
+    50% {
+        background-color: transparent;
+        box-shadow: none;
+    }
+
+    100% {
+        background-color: transparent;
+        box-shadow: none;
+    }
+}
+
+.animate-neon-flash-3 {
+    animation: neon-flash-3 1.2s ease-out forwards;
 }

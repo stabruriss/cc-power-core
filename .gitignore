@@ -7,13 +7,23 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build outputs
 dist
 dist-ssr
 dist-electron
 release
+
+# Test files with sensitive data
 testkey.md
+tests/
+
+# Local env files
 *.local
+.env
+.env.*
 
 # Editor directories and files
 .vscode/*
@@ -25,3 +35,12 @@ testkey.md
 *.njsproj
 *.sln
 *.sw?
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Thumbnails
+Thumbs.db

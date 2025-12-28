@@ -30,33 +30,42 @@ export async function fetchModels(): Promise<Model[]> {
     }
 }
 
-export interface Credits {
-    total_usage: number;
-    total_credits: number;
+export interface KeyInfo {
+    limit: number | null;          // 信用额度限制，null 表示无限制
+    limit_remaining: number | null; // 剩余信用额度
+    usage: number;                  // 总使用量
+    usage_daily: number;            // 日使用量
+    usage_weekly: number;           // 周使用量
+    usage_monthly: number;          // 月使用量
+    is_free_tier: boolean;          // 是否为免费账户
 }
 
-export async function fetchCredits(apiKey: string): Promise<Credits | null> {
+export async function fetchKeyInfo(apiKey: string): Promise<KeyInfo | null> {
     if (apiKey === 'sk-or-session-verify') {
         return {
-            total_credits: 10.00,
-            total_usage: 50.00
-        } as Credits;
+            limit: 10.00,
+            limit_remaining: 8.50,
+            usage: 1.50,
+            usage_daily: 0.50,
+            usage_weekly: 1.00,
+            usage_monthly: 1.50,
+            is_free_tier: false
+        };
     }
     try {
-        const response = await fetch('https://openrouter.ai/api/v1/credits', {
+        const response = await fetch('https://openrouter.ai/api/v1/key', {
             headers: {
                 'Authorization': `Bearer ${apiKey}`
             }
         });
         if (!response.ok) {
-            // If 401/403, just return null, don't crash the app
-            console.warn(`Failed to fetch credits: ${response.status}`);
+            console.warn(`Failed to fetch key info: ${response.status}`);
             return null;
         }
         const data = await response.json();
         return data.data;
     } catch (error) {
-        console.error('Error fetching credits:', error);
+        console.error('Error fetching key info:', error);
         return null;
     }
 }

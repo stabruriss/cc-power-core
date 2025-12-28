@@ -1,6 +1,7 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { EnvVarDefinition } from '../../types';
 import { Edit2, Check, X, ChevronDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 interface MonitorRowProps {
     def: EnvVarDefinition;
@@ -10,9 +11,10 @@ interface MonitorRowProps {
     isEditing?: boolean;
     editValue?: string;
     onEditValueChange?: (val: string) => void;
-    onSave?: () => void;
+    onSave?: (val?: string) => void;
     onCancel?: () => void;
     options?: string[];
+    displayOverride?: string;
 }
 
 export const MonitorRow: React.FC<MonitorRowProps> = ({
@@ -24,10 +26,13 @@ export const MonitorRow: React.FC<MonitorRowProps> = ({
     onEditValueChange,
     onSave,
     onCancel,
-    options
+    options,
+    displayOverride
 }) => {
-    const displayValue = !value ? '<EMPTY>' : (def.isSecret ? '••••••••••••••••' : value);
+    const displayValue = displayOverride || (!value ? '<EMPTY>' : (def.isSecret ? '••••••••••••••••' : value));
     const inputRef = useRef<HTMLInputElement>(null);
+    const inputContainerRef = useRef<HTMLDivElement>(null);
+    const [dropdownPos, setDropdownPos] = useState<{ top: number; left: number; width: number } | null>(null);
 
     useEffect(() => {
         if (isEditing && inputRef.current) {
@@ -35,9 +40,41 @@ export const MonitorRow: React.FC<MonitorRowProps> = ({
         }
     }, [isEditing]);
 
+    // Calculate dropdown position when editing
+    useEffect(() => {
+        if (isEditing && inputContainerRef.current) {
+            const rect = inputContainerRef.current.getBoundingClientRect();
+            setDropdownPos({
+                top: rect.bottom + 2,
+                left: rect.left,
+                width: rect.width
+            });
+        } else {
+            setDropdownPos(null);
+        }
+    }, [isEditing, editValue]);
+
     const filteredOptions = options?.filter(opt =>
         !editValue || opt.toLowerCase().includes(editValue.toLowerCase())
     ) || [];
+
+    const [activeIndex, setActiveIndex] = useState<number>(-1);
+
+    // Reset active index when edit value changes (filtering changes)
+    useEffect(() => {
+        setActiveIndex(-1);
+    }, [editValue]);
+
+    // Scroll active item into view
+    const listRef = useRef<HTMLDivElement>(null);
+    useEffect(() => {
+        if (activeIndex >= 0 && listRef.current) {
+            const activeItem = listRef.current.children[activeIndex] as HTMLElement;
+            if (activeItem) {
+                activeItem.scrollIntoView({ block: 'nearest' });
+            }
+        }
+    }, [activeIndex]);
 
     // Inline Edit Mode
     if (isEditing && onEditValueChange && onSave && onCancel) {
@@ -58,34 +95,67 @@ export const MonitorRow: React.FC<MonitorRowProps> = ({
                 </div>
 
                 {/* Input Area */}
-                <div className="relative mb-1">
+                <div ref={inputContainerRef} className="relative mb-1">
                     <input
                         ref={inputRef}
                         type="text"
                         value={editValue}
                         onChange={(e) => onEditValueChange(e.target.value)}
                         onKeyDown={(e) => {
-                            if (e.key === 'Enter') onSave();
-                            if (e.key === 'Escape') onCancel();
+                            if (e.key === 'Enter') {
+                                e.preventDefault();
+                                if (activeIndex >= 0 && filteredOptions[activeIndex]) {
+                                    // Pass explicit value
+                                    onSave(filteredOptions[activeIndex]);
+                                } else {
+                                    onSave();
+                                }
+                            }
+                            if (e.key === 'Escape') {
+                                e.preventDefault();
+                                onCancel();
+                            }
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setActiveIndex(prev => Math.min(prev + 1, filteredOptions.length - 1));
+                            }
+                            if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setActiveIndex(prev => Math.max(prev - 1, 0));
+                            }
                         }}
                         className="w-full bg-black border border-zinc-700 text-[10px] font-mono text-te-offwhite p-1.5 pr-6 outline-none focus:border-te-orange placeholder-zinc-700 shadow-inner"
                         placeholder="SELECT OR TYPE..."
                     />
                     <ChevronDown size={10} className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
 
-                    {/* Options List (Absolute Combobox) */}
-                    {options && options.length > 0 && (
-                        <div className="absolute top-full left-0 w-full z-50 flex flex-col gap-[1px] bg-[#0a0a0a] border border-zinc-800 max-h-32 overflow-y-auto screen-scroll shadow-hard-sm mt-[1px]">
-                            {filteredOptions.length > 0 ? filteredOptions.map((opt) => (
+                    {/* Options List - Portal to body to avoid overflow clipping */}
+                    {options && options.length > 0 && dropdownPos && createPortal(
+                        <div
+                            ref={listRef}
+                            style={{
+                                position: 'fixed',
+                                top: dropdownPos.top,
+                                left: dropdownPos.left,
+                                width: dropdownPos.width,
+                                zIndex: 9999
+                            }}
+                            className="flex flex-col gap-[1px] bg-[#0a0a0a] border border-zinc-800 max-h-48 overflow-y-auto screen-scroll shadow-hard-sm"
+                        >
+                            {filteredOptions.length > 0 ? filteredOptions.map((opt, idx) => (
                                 <div
                                     key={opt}
-                                    onClick={() => onEditValueChange(opt)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        // Directly save the clicked option
+                                        onSave(opt);
+                                    }}
                                     className={`
                                 px-2 py-1.5 text-[9px] font-mono cursor-pointer flex items-center gap-2 transition-colors border-b border-zinc-900 last:border-0
-                                ${editValue === opt ? 'bg-te-orange/20 text-te-orange' : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200'}
+                                ${editValue === opt || activeIndex === idx ? 'bg-te-orange/20 text-te-orange' : 'text-zinc-500 hover:bg-zinc-900 hover:text-zinc-200'}
                             `}
                                 >
-                                    <div className={`w-1 h-1 rounded-full ${editValue === opt ? 'bg-te-orange' : 'bg-transparent border border-zinc-700'}`}></div>
+                                    <div className={`w-1 h-1 rounded-full ${editValue === opt || activeIndex === idx ? 'bg-te-orange' : 'bg-transparent border border-zinc-700'}`}></div>
                                     {opt}
                                 </div>
                             )) : (
@@ -93,7 +163,8 @@ export const MonitorRow: React.FC<MonitorRowProps> = ({
                                     No matching models
                                 </div>
                             )}
-                        </div>
+                        </div>,
+                        document.body
                     )}
                 </div>
             </div>
