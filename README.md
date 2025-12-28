@@ -32,7 +32,7 @@ CC PowerCore lets you use **any OpenRouter-supported model** with the official C
 
 ### Download
 
-- **macOS (Apple Silicon)**: `CCPowerCore-Mac-x.x.x-Installer.dmg`
+- **macOS (Apple Silicon)**: [Download from Releases](https://github.com/stabruriss/cc-power-core/releases/latest)
 
 ### Install
 

@@ -32,7 +32,7 @@ CC PowerCore 让你可以在官方 Claude Code CLI 中使用 **OpenRouter 支持
 
 ### 下载
 
-- **macOS (Apple Silicon)**: `CCPowerCore-Mac-x.x.x-Installer.dmg`
+- **macOS (Apple Silicon)**: [从 Releases 下载](https://github.com/stabruriss/cc-power-core/releases/latest)
 
 ### 安装
 
