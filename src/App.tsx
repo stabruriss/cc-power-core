@@ -97,6 +97,35 @@ export default function App() {
   }
   const [fileConfigValues, setFileConfigValues] = useState<FileConfigValues>({ found: false });
 
+  // Update Detection State
+  interface UpdateInfo {
+    hasUpdate: boolean;
+    currentVersion?: string;
+    latestVersion?: string;
+    releaseUrl?: string;
+  }
+  const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
+  const [showUpdateBanner, setShowUpdateBanner] = useState(false);
+
+  // Check for updates on mount
+  useEffect(() => {
+    const checkUpdates = async () => {
+      if (!window.electronAPI?.checkForUpdates) return;
+      try {
+        const result = await window.electronAPI.checkForUpdates();
+        if (result.hasUpdate) {
+          setUpdateInfo(result);
+          setShowUpdateBanner(true);
+        }
+      } catch (e) {
+        console.error('Update check failed:', e);
+      }
+    };
+    // Delay check slightly to not block initial render
+    const timer = setTimeout(checkUpdates, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     const getModels = async () => {
       // Allow fetching models even without a key (Public Endpoint)
@@ -587,8 +616,36 @@ export default function App() {
         {/* Placeholder for Traffic Lights (Approx 70px) */}
         <div className="w-[70px] h-full"></div>
 
-        <div className="text-[7px] text-zinc-500 font-mono tracking-widest font-bold uppercase">CC Powercore Swap // v0.0.1</div>
+        <div className="text-[7px] text-zinc-500 font-mono tracking-widest font-bold uppercase">CC Powercore Swap // v0.0.2</div>
       </div>
+
+      {/* Update Available Banner */}
+      {showUpdateBanner && updateInfo && (
+        <div className="bg-te-orange/90 text-white px-4 py-2 flex items-center justify-between text-xs font-mono relative z-30 shadow-md">
+          <div className="flex items-center gap-3">
+            <span className="font-bold uppercase tracking-wider">Update Available</span>
+            <span className="text-white/80">v{updateInfo.currentVersion} → v{updateInfo.latestVersion}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={async () => {
+                if (updateInfo.releaseUrl && window.electronAPI?.openExternal) {
+                  await window.electronAPI.openExternal(updateInfo.releaseUrl);
+                }
+              }}
+              className="bg-white text-te-orange px-3 py-1 text-[10px] font-bold uppercase tracking-wide hover:bg-zinc-100 transition-colors rounded-[2px] active:translate-y-[1px]"
+            >
+              Download
+            </button>
+            <button
+              onClick={() => setShowUpdateBanner(false)}
+              className="text-white/70 hover:text-white transition-colors p-1"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Screws */}
       <Screw className="absolute top-9 left-5 z-20 opacity-70" />

@@ -8,5 +8,8 @@ interface Window {
         getShellConfigValues: () => Promise<{ found: boolean; baseUrl?: string; authToken?: string; opusModel?: string; sonnetModel?: string; haikuModel?: string }>;
         openConfigFolder: () => Promise<boolean>;
         openPath: (path: string) => Promise<boolean>;
+        getAppVersion: () => Promise<string>;
+        checkForUpdates: () => Promise<{ hasUpdate: boolean; currentVersion?: string; latestVersion?: string; releaseUrl?: string; error?: string }>;
+        openExternal: (url: string) => Promise<boolean>;
     };
 }

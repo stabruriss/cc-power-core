@@ -28,4 +28,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getShellConfigValues: () => ipcRenderer.invoke('get-shell-config-values'),
   openConfigFolder: () => ipcRenderer.invoke('open-config-folder'),
   openPath: (path: string) => ipcRenderer.invoke('open-path', path),
+  getAppVersion: () => ipcRenderer.invoke('get-app-version'),
+  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
+  openExternal: (url: string) => ipcRenderer.invoke('open-external', url),
 })

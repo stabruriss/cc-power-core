@@ -1,12 +1,15 @@
 import electron from 'electron'
 import type { BrowserWindow as BrowserWindowType } from 'electron'
-const { app, BrowserWindow, ipcMain } = electron
+const { app, BrowserWindow, ipcMain, shell } = electron
 // import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import Store from 'electron-store'
 import os from 'node:os'
 import { updateShellConfig } from './shellUtils'
+
+// App version from package.json
+const APP_VERSION = app.getVersion()
 
 // const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -202,6 +205,42 @@ app.whenReady().then(() => {
       sonnetModel: parseVar('ANTHROPIC_DEFAULT_SONNET_MODEL'),
       haikuModel: parseVar('ANTHROPIC_DEFAULT_HAIKU_MODEL')
     }
+  })
+
+  // Get app version
+  ipcMain.handle('get-app-version', () => {
+    return APP_VERSION
+  })
+
+  // Check for updates from GitHub releases
+  ipcMain.handle('check-for-updates', async () => {
+    try {
+      const response = await fetch('https://api.github.com/repos/stabruriss/cc-power-core/releases/latest')
+      if (!response.ok) {
+        return { hasUpdate: false, error: 'Failed to fetch releases' }
+      }
+      const data = await response.json()
+      const latestVersion = data.tag_name?.replace(/^v/, '') || ''
+      const currentVersion = APP_VERSION
+
+      // Simple version comparison (works for semver)
+      const hasUpdate = latestVersion !== currentVersion && latestVersion > currentVersion
+
+      return {
+        hasUpdate,
+        currentVersion,
+        latestVersion,
+        releaseUrl: data.html_url || 'https://github.com/stabruriss/cc-power-core/releases/latest'
+      }
+    } catch (error: any) {
+      return { hasUpdate: false, error: error.message }
+    }
+  })
+
+  // Open external URL
+  ipcMain.handle('open-external', async (_, url: string) => {
+    await shell.openExternal(url)
+    return true
   })
 
   ipcMain.handle('save-settings', async (_, settings) => {
