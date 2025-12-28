@@ -1,60 +1,70 @@
 # CC PowerCore
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
-![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows%20%7C%20Linux-lightgrey.svg)
+![Platform](https://img.shields.io/badge/platform-macOS%20(Apple%20Silicon)-lightgrey.svg)
 ![Status](https://img.shields.io/badge/status-Active-green.svg)
 
-**CC PowerCore** is a premium, industrial-styled command center for [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview). It acts as a visual middleware, routing your local Claude Code CLI traffic through [OpenRouter](https://openrouter.ai/), giving you total control over model selection, budget, and API usage.
+**CC PowerCore** is a desktop app for [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview) that routes your CLI traffic through [OpenRouter](https://openrouter.ai/), giving you control over model selection, budget, and API usage.
+
+![Screenshot](./public/screenshot.png)
 
 ---
 
-## Core Purpose
+## What It Does
 
-The goal of CC PowerCore is to **unlock the full potential of Claude Code**. By decoupling it from the default Anthropic API, it provides a ritualistic "Ignition" interface to inject OpenRouter configuration into your shell environment. This means you can drive the official Claude Code CLI with **any model** available on OpenRouter.
+CC PowerCore lets you use **any OpenRouter-supported model** with the official Claude Code CLI. It injects OpenRouter configuration into your shell environment, so you can switch models without touching config files.
 
-## Target Audience
+## Who It's For
 
-- **Geek Developers**: People who want to use non-standard models (like `deepseek-r1`, `gemini-2.0-flash`, etc.) in Claude Code.
-- **Cost-Conscious Users**: Engineers who want to monitor session costs in real-time and optimize AI spending.
-- **Minimalists**: Those who find config files tedious but dislike complex GUIs.
+- Developers who want to use models like Gemini, Codex, or Z.AI in Claude Code
+- Users who want to monitor session costs in real-time
+- Anyone who prefers a GUI over manual config file editing
 
 ## Features
 
-- **Model Switching**: Configure King (Opus), Queen (Sonnet), and Jack (Haiku) model slots with any OpenRouter-supported model
-- **Real-time Cost Tracking**: Monitor your session cost with live updates and countdown timer
-- **Ignition System**: Visual toggle to activate/deactivate OpenRouter routing
-- **Budget Monitor**: CostKnob displays remaining budget and usage status
-- **Shell Integration**: Automatically configures your `.zshrc` or `.bashrc`
-- **Industrial UI**: Retro-futuristic command center aesthetic
+- **Model Configuration**: Set up King (Opus), Queen (Sonnet), and Jack (Haiku) model slots with any OpenRouter model
+- **Cost Tracking**: Monitor session cost with live updates
+- **Toggle Routing**: Turn OpenRouter routing on/off with one click
+- **Budget Display**: See remaining balance and usage status
+- **Shell Integration**: Auto-configures `.zshrc` or `.bashrc`
 
 ## Installation
 
 ### Download
 
-Download the latest release for your platform:
+- **macOS (Apple Silicon)**: `CCPowerCore-Mac-x.x.x-Installer.dmg`
 
-- **macOS**: `CCPowerCore-Mac-x.x.x-Installer.dmg`
-- **Windows**: `CCPowerCore-Windows-x.x.x-Setup.exe`
-- **Linux**: `CCPowerCore-Linux-x.x.x.AppImage`
+### Install
 
-### macOS Installation
-
-1. Download the DMG file
-2. Open the DMG and drag CCPowerCore to your Applications folder
-3. On first launch, right-click the app and select "Open" (required for unsigned apps)
+1. Download the DMG
+2. Drag CCPowerCore to Applications
+3. Right-click and select "Open" on first launch (required for unsigned apps)
 
 ### Setup
 
-1. Get your API key from [OpenRouter](https://openrouter.ai/keys)
+1. Get an API key from [OpenRouter](https://openrouter.ai/keys)
 2. Launch CC PowerCore
-3. Insert your OpenRouter API key in the ignition drawer
-4. Configure your preferred models for King/Queen/Jack slots
-5. Turn the ignition key to "ON" to activate routing
-6. Open a new terminal and use `claude` as normal
+3. Enter your API key
+4. Configure your preferred models
+5. Turn the ignition to "ON"
+6. Start a **new** Claude Code session (see Usage Tips below)
+
+## Usage Tips
+
+> **Important**: After turning the ignition ON/OFF, you must start a new Claude Code session for changes to take effect. The environment variables are only read when a new session starts.
+
+### Terminal (CLI)
+
+- Type `exit` to end the current session, then run `claude` again
+- Or open a new terminal window/tab
+
+### IDE Integration
+
+Claude Code IDE plugins (VS Code, Winsurf, Cursor, etc.) do not read shell environment variables. To use CC PowerCore in an IDE, run the CLI in the integrated terminal instead of using the native plugin.
 
 ## How It Works
 
-CC PowerCore modifies your shell configuration file (`.zshrc` or `.bashrc`) to set environment variables that redirect Claude Code's API calls through OpenRouter:
+CC PowerCore adds environment variables to your shell config (`.zshrc` or `.bashrc`):
 
 ```bash
 # CCPowerCore Start
@@ -66,11 +76,11 @@ export ANTHROPIC_DEFAULT_HAIKU_MODEL="anthropic/claude-3-haiku"
 # CCPowerCore End
 ```
 
-When you turn off the ignition, these lines are removed, and Claude Code returns to using the default Anthropic API.
+When you turn off routing, these lines are removed.
 
 ## Development
 
-### Prerequisites
+### Requirements
 
 - Node.js 18+
 - npm or yarn
@@ -78,42 +88,35 @@ When you turn off the ignition, these lines are removed, and Claude Code returns
 ### Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/anthropics/cc-power-core.git
+git clone https://github.com/stabruriss/cc-power-core.git
 cd cc-power-core
-
-# Install dependencies
 npm install
-
-# Run in development mode
-npm run dev
-
-# Build for production
-npm run build
+npm run dev      # Development
+npm run build    # Production build
 ```
 
-### Project Structure
+### Structure
 
 ```
 cc-power-core/
-├── electron/           # Electron main process
-│   ├── main.ts         # Main process entry
-│   ├── preload.ts      # Preload script for IPC
-│   └── shellUtils.ts   # Shell configuration utilities
+├── electron/           # Main process
+│   ├── main.ts
+│   ├── preload.ts
+│   └── shellUtils.ts
 ├── src/                # React frontend
-│   ├── components/     # UI components
-│   ├── lib/            # Utilities (OpenRouter API)
-│   └── App.tsx         # Main application
-├── public/             # Static assets
-└── release/            # Build outputs (gitignored)
+│   ├── components/
+│   ├── lib/
+│   └── App.tsx
+├── public/
+└── release/            # Build output (gitignored)
 ```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE)
 
-## Acknowledgments
+## Credits
 
 - [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview) by Anthropic
-- [OpenRouter](https://openrouter.ai/) for API routing
-- [Electron](https://www.electronjs.org/) for cross-platform desktop support
+- [OpenRouter](https://openrouter.ai/)
+- [Electron](https://www.electronjs.org/)
