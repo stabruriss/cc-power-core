@@ -195,3 +195,14 @@ body {
 .animate-neon-flash-3 {
     animation: neon-flash-3 1.2s ease-out forwards;
 }
+
+/* Life Bar Animation - shrinks from both sides to center over 10 seconds */
+@keyframes shrinkLifeBarCenter {
+    0% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0%;
+    }
+}

@@ -107,6 +107,11 @@ export default function App() {
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
   const [showUpdateBanner, setShowUpdateBanner] = useState(false);
 
+  // Neon hint auto-hide state - only show when config file is modified
+  const [showNeonHint, setShowNeonHint] = useState(false);
+  const [neonHintKey, setNeonHintKey] = useState(0); // Key to force re-render and reset animation
+  const neonHintTimerRef = useRef<NodeJS.Timeout | null>(null);
+
   // Check for updates on mount
   useEffect(() => {
     const checkUpdates = async () => {
@@ -186,7 +191,36 @@ export default function App() {
   // Rotation: NO_KEY (-45deg), OFF (0deg), ON (45deg)
   const rotation = ignitionState === 'NO_KEY' ? -45 : ignitionState === 'OFF' ? 0 : 45;
 
-  const syncToBackend = async (newState: EnvState, isActive: boolean) => {
+  // Helper function to trigger neon hint - only called when config file is actually modified
+  const triggerNeonHint = () => {
+    // Clear existing timer first
+    if (neonHintTimerRef.current) {
+      clearTimeout(neonHintTimerRef.current);
+      neonHintTimerRef.current = null;
+    }
+
+    // Increment key to force re-render and reset all animations
+    setNeonHintKey(prev => prev + 1);
+    // Show hint
+    setShowNeonHint(true);
+
+    // Auto-hide after 10 seconds (animation duration)
+    neonHintTimerRef.current = setTimeout(() => {
+      setShowNeonHint(false);
+    }, 10000);
+  };
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (neonHintTimerRef.current) {
+        clearTimeout(neonHintTimerRef.current);
+        neonHintTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const syncToBackend = async (newState: EnvState, isActive: boolean, shouldShowHint: boolean = false) => {
     // Synchronize with Electron Backend
     // Use ANTHROPIC_AUTH_TOKEN as the "apiKey" for backend storage/config writing
     const apiKey = newState['ANTHROPIC_AUTH_TOKEN'] || '';
@@ -207,6 +241,10 @@ export default function App() {
         });
         if (res.success) {
           console.log('Backend synced:', { apiKey, model, active: isActive });
+          // Trigger neon hint only when config file was actually modified
+          if (shouldShowHint) {
+            triggerNeonHint();
+          }
         } else {
           console.error('Backend sync failed:', res.error);
           addLog('error', `CONFIG SAVE ERROR: ${res.error}`);
@@ -380,7 +418,7 @@ export default function App() {
 
     if (ignitionState === 'OFF') {
       // Turning ON
-      syncToBackend(newState, true); // Active = true
+      syncToBackend(newState, true, true); // Active = true, show hint
       setIsVibrating(true);
       setTimeout(() => setIsVibrating(false), 400); // 400ms vibration
 
@@ -413,7 +451,7 @@ export default function App() {
       }
       // Reset session cost when disengaging (new session starts on next engage)
       initialUsageRef.current = null;
-      syncToBackend(newState, false); // Active = false (Remove from Config)
+      syncToBackend(newState, false, true); // Active = false (Remove from Config), show hint
     }
 
     // Refresh Config Status from file after toggle
@@ -903,6 +941,64 @@ export default function App() {
                   : (keyInfo?.limit === null && keyInfo?.usage !== undefined) ? 'UNLIMITED' : 'UNKNOWN KEY'}
               </span>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Neon Terminal Hint - Two-Step Animation: Door Opens -> Content Slides Out */}
+      <div
+        className={`mx-6 mt-3 overflow-hidden transition-all duration-1000 ease-[cubic-bezier(0.4,0,0.2,1)]
+          ${showNeonHint ? 'max-h-20' : 'max-h-0'}
+        `}
+        style={{
+          perspective: '1200px',
+        }}
+      >
+        {/* Mechanical Door Container - Dark background with subtle border */}
+        <div
+          className={`
+            relative overflow-hidden rounded-[2px] border transition-all duration-800 ease-[cubic-bezier(0.4,0,0.2,1)]
+            bg-[#0a0a0a]
+            ${ignitionState === 'ON'
+              ? 'border-green-800/60'
+              : 'border-amber-800/60'}
+            ${showNeonHint ? 'opacity-100' : 'opacity-0'}
+          `}
+          style={{
+            boxShadow: ignitionState === 'ON'
+              ? '0 0 12px rgba(34, 197, 94, 0.15), inset 0 0 20px rgba(0,0,0,0.5)'
+              : '0 0 12px rgba(217, 119, 6, 0.15), inset 0 0 20px rgba(0,0,0,0.5)',
+          }}
+        >
+          {/* Content that slides out */}
+          <div
+            key={neonHintKey}
+            className={`
+              relative px-4 py-2.5 font-mono text-[11px] tracking-wide text-center
+              transition-all duration-800 ease-[cubic-bezier(0.4,0,0.2,1)]
+              ${ignitionState === 'ON' ? 'text-green-500/90' : 'text-amber-500/90'}
+            `}
+            style={{
+              transform: showNeonHint ? 'translateY(0)' : 'translateY(-100%)',
+              opacity: showNeonHint ? 1 : 0,
+              transitionDelay: showNeonHint ? '400ms' : '0ms',
+            }}
+          >
+            {/* Life Bar - shrinks from both sides to center */}
+            <div
+              className={`absolute bottom-0 left-1/2 h-[2px] transition-none
+                ${ignitionState === 'ON' ? 'bg-green-600/80 shadow-[0_0_6px_rgba(34,197,94,0.4)]' : 'bg-amber-600/80 shadow-[0_0_6px_rgba(217,119,6,0.4)]'}
+              `}
+              style={{
+                transform: 'translateX(-50%)',
+                animation: showNeonHint ? 'shrinkLifeBarCenter 10s linear forwards' : 'none',
+              }}
+            />
+            <span className={`inline-block ${showNeonHint ? 'animate-pulse' : ''}`}>
+              {ignitionState === 'ON'
+                ? 'RESTART Terminal OR run "source ~/.zshrc" to use OpenRouter'
+                : 'RESTART Terminal OR run "source ~/.zshrc" to cutoff OpenRouter'}
+            </span>
           </div>
         </div>
       </div>
