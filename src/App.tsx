@@ -376,7 +376,7 @@ export default function App() {
           body: JSON.stringify({
             model: model,
             messages: [{ role: 'user', content: 'Hi' }],
-            max_tokens: 1
+            max_tokens: 16
           })
         });
         setModelStatuses(prev => ({ ...prev, [k]: res.ok ? 'online' : 'offline' }));
