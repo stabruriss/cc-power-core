@@ -34,7 +34,7 @@ const ModelSlot: React.FC<ModelSlotProps> = ({ rank, def, value, icon, onEdit, i
         <div className="flex items-center gap-2">
           {icon}
           <span className={`text-[8px] font-bold tracking-widest ${rank === 'KING' ? 'text-yellow-500' : rank === 'QUEEN' ? 'text-zinc-400' : 'text-amber-600'}`}>
-            {rank} MODEL
+            {rank} MODEL (Replacing {rank === 'KING' ? 'Opus' : rank === 'QUEEN' ? 'Sonnet' : 'Haiku'})
           </span>
         </div>
         {/* Status Light */}
@@ -654,7 +654,7 @@ export default function App() {
         {/* Placeholder for Traffic Lights (Approx 70px) */}
         <div className="w-[70px] h-full"></div>
 
-        <div className="text-[7px] text-zinc-500 font-mono tracking-widest font-bold uppercase">CC Powercore Swap // v0.0.2</div>
+        <div className="text-[7px] text-zinc-500 font-mono tracking-widest font-bold uppercase">CC Powercore Swap // v0.0.3</div>
       </div>
 
       {/* Update Available Banner */}
@@ -1079,17 +1079,17 @@ export default function App() {
                           status: fileConfigValues.authToken === 'ACTIVATED' ? 'activated' : 'inactive',
                         },
                         {
-                          label: 'King Model',
+                          label: 'King Model (Replacing Opus)',
                           displayValue: fileConfigValues.opusModel ? 'SET' : 'NOT SET',
                           status: fileConfigValues.opusModel ? 'set' : 'notset',
                         },
                         {
-                          label: 'Queen Model',
+                          label: 'Queen Model (Replacing Sonnet)',
                           displayValue: fileConfigValues.sonnetModel ? 'SET' : 'NOT SET',
                           status: fileConfigValues.sonnetModel ? 'set' : 'notset',
                         },
                         {
-                          label: 'Jack Model',
+                          label: 'Jack Model (Replacing Haiku)',
                           displayValue: fileConfigValues.haikuModel ? 'SET' : 'NOT SET',
                           status: fileConfigValues.haikuModel ? 'set' : 'notset',
                         },

@@ -1,7 +1,7 @@
 {
   "name": "cc-power-core",
   "private": false,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Route Claude Code CLI through OpenRouter with model selection and cost tracking",
   "author": "wunan",
   "license": "MIT",
